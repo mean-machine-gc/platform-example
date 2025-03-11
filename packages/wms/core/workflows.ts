@@ -1,10 +1,107 @@
-import { CoreWf } from 'dc-ts'
-import { CreatePrimaryWasteCmd, CreatePrimaryWasteState, IncinerateWasteCmd } from './commands'
-import { PrimaryWasteCreatedEvt, WasteIncineratedEvt } from './events'
-import { IncinerateWasteState } from './state'
+import { CMD, CorePy, CoreWf, EVT } from 'dc-ts'
+import { Category, CreatedWaste, PrimaryCreatedWaste, PrimaryStoredWaste, PrimaryWasteCode, ReadyForStorageWaste, SecondaryCategory, SecondaryCreatedWaste, SecondaryWasteCode, StorageConfig, StorageInfo, StoredWaste, TreatedWaste, TreatmentConfig, TreatmentInfo, Weight } from './waste'
 
 
+export type CreatePrimaryWasteWf = CoreWf<
+    CMD<'create-primary-waste', {
+        code?: PrimaryWasteCode
+        weight?: Weight
+        category?: Category
+    }>, 
+    {}, 
+    EVT<'primary-waste-created', {
+        waste: PrimaryCreatedWaste
+    }>
+>
 
-export type CreatePrimaryWasteWf = CoreWf<CreatePrimaryWasteCmd, CreatePrimaryWasteState, PrimaryWasteCreatedEvt>
-export type IncinerateWasteWf = CoreWf<IncinerateWasteCmd, IncinerateWasteState, WasteIncineratedEvt>
-//constrains: 1) the health facility must be enabled to incinerate 2) the waste type must be the right type for incineration, we can use the utility canIncinerate to establish that
+export type WeightWasteWf = CoreWf<
+    CMD<'weight-waste', {
+        wasteId: string
+        weight: Weight
+    }>, 
+    {
+        waste: CreatedWaste
+    }, 
+    EVT<'waste-weighted', {
+        waste: CreatedWaste
+    }>
+>
+
+export type CategorizeWasteWf = CoreWf<
+    CMD<'categorize-waste', {
+        wasteId: string
+        category: Category
+    }>, 
+    {
+        waste: CreatedWaste
+    }, 
+    EVT<'waste-categorized', {
+        waste: CreatedWaste
+    }>
+>
+
+export type StoreWasteWf = CoreWf<
+    CMD<'store-waste', {
+        wasteId: string
+        storageInfo: StorageInfo
+    }>, 
+    { 
+        waste: ReadyForStorageWaste, 
+        storageConfig: StorageConfig 
+    },
+    EVT<'waste-stored', {
+        waste: StoredWaste
+    }>
+>
+
+export type TreatWasteWf = CoreWf<
+    CMD<'treat-waste', {
+        wasteId: string
+        treatmentInfo: TreatmentInfo
+    }>, 
+    { 
+        waste: PrimaryStoredWaste, 
+        treatmentConfig: TreatmentConfig,
+        hfTreatmentCapacity: string[] 
+    },
+    EVT<'waste-treated', {
+        waste: TreatedWaste
+    }>
+>
+
+export type CreateSecondaryWasteWf = CoreWf<
+    CMD<'create-secondary-waste', {
+        category: SecondaryCategory
+        primaryWasteRef: string
+    }>, 
+    {}, 
+    EVT<'secondary-waste-created', {
+        waste: SecondaryCreatedWaste
+    }>
+>
+
+export type WasteWf = 
+    CreatePrimaryWasteWf |
+    WeightWasteWf |
+    CategorizeWasteWf |
+    StoreWasteWf |
+    TreatWasteWf |
+    CreateSecondaryWasteWf
+
+export type WasteCmd = WasteWf['cmd']
+export type WasteEvt = WasteWf['evt']
+export type WasteWfState = WasteWf['state']
+
+
+export type CreateSecondaryWastePy = CorePy<
+    TreatWasteWf['evt'],
+    {
+        category: SecondaryCategory
+    },
+    CreateSecondaryWasteWf['cmd']
+>
+
+export type WastePy = CreateSecondaryWastePy
+export type WastePyEvt = WastePy['evt']
+export type WastePyState = WastePy['state']
+export type WastePyCmd = WastePy['cmd']

@@ -12,6 +12,7 @@
     "packages/wms"
   ],
   "dependencies": {
-    "dc-ts": "^0.0.7-unstable"
+    "dc-ts": "^0.0.9-unstable",
+    "uuid": "^11.1.0"
   }
 }

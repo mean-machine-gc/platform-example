@@ -39,6 +39,35 @@ export const DomainTrace = Type.Object({
   causationid: Type.Union([Type.String(), Type.Undefined()])
 })
 
+export type TransporterType = Static<typeof TransporterType>
+export const TransporterType = Type.Unknown()
+
+export type ProcessorType = Static<typeof ProcessorType>
+export const ProcessorType = Type.Union([
+  Type.Literal('incinerator'),
+  Type.Literal('sterilizer')
+])
+
+export type DisposerType = Static<typeof DisposerType>
+export const DisposerType = Type.Union([
+  Type.Literal('landfill'),
+  Type.Literal('recycler')
+])
+
+export type StorageConfig = Static<typeof StorageConfig>
+export const StorageConfig = Type.Object({})
+
+export type TreatmentConfig = Static<typeof TreatmentConfig>
+export const TreatmentConfig = Type.Object({})
+
+export type TreatmentInfo = Static<typeof TreatmentInfo>
+export const TreatmentInfo = Type.Object({
+  treatment: Type.String()
+})
+
+export type RoomCode = Static<typeof RoomCode>
+export const RoomCode = Type.String()
+
 export type PrimaryWasteCode = Static<typeof PrimaryWasteCode>
 export const PrimaryWasteCode = Type.String()
 
@@ -51,18 +80,15 @@ export const Weight = Type.Object({
   uom: Type.Union([Type.Literal('kg'), Type.Literal('g')])
 })
 
-export type IncinerationInfo = Static<typeof IncinerationInfo>
-export const IncinerationInfo = Type.Object({
-  timestamp: Type.Number()
-})
-
 export type AutoclaveInfo = Static<typeof AutoclaveInfo>
 export const AutoclaveInfo = Type.Object({
+  treatment: Type.Literal('autoclave'),
   timestamp: Type.Number()
 })
 
 export type MicrowaveInfo = Static<typeof MicrowaveInfo>
 export const MicrowaveInfo = Type.Object({
+  treatment: Type.Literal('microwave'),
   timestamp: Type.Number()
 })
 
@@ -85,321 +111,318 @@ export const NonHazardousStorage = Type.Object({
   storageType: Type.Literal('non_hazardous')
 })
 
-export type Storage = Static<typeof Storage>
-export const Storage = Type.Union([HazardousStorage, NonHazardousStorage])
+export type StorageInfo = Static<typeof StorageInfo>
+export const StorageInfo = Type.Union([HazardousStorage, NonHazardousStorage])
 
-export type NonInfectious = Static<typeof NonInfectious>
-export const NonInfectious = Type.Union([
-  Type.Literal('primary:medical:non_infectious:non_expired_pharmaceuticals'),
-  Type.Literal('primary:medical:non_infectious:expired_pharmaceuticals'),
-  Type.Literal('primary:medical:non_infectious:expired_chemical'),
-  Type.Literal('primary:medical:non_infectious:chemical'),
-  Type.Literal('primary:medical:non_infectious:cytotoxic'),
-  Type.Literal('primary:medical:non_infectious:radioactive'),
-  Type.Literal('primary:medical:non_infectious:pressurized_container'),
-  Type.Literal('primary:medical:non_infectious:heavy_metal')
-])
+export type StorageTime = Static<typeof StorageTime>
+export const StorageTime = Type.Object({
+  num: Type.Number(),
+  time: Type.Union([
+    Type.Literal('h'),
+    Type.Literal('d'),
+    Type.Literal('m'),
+    Type.Literal('y')
+  ])
+})
 
-export type Infectious = Static<typeof Infectious>
-export const Infectious = Type.Union([
-  Type.Literal('primary:medical:infectious:infectious'),
-  Type.Literal('primary:medical:infectious:plastic'),
-  Type.Literal('primary:medical:infectious:non_plastic'),
-  Type.Literal('primary:medical:infectious:sharp'),
-  Type.Literal('primary:medical:infectious:pathology')
-])
+export type IncinerationInfo = Static<typeof IncinerationInfo>
+export const IncinerationInfo = Type.Object({
+  treatment: Type.Literal('incineration'),
+  timestamp: Type.Number()
+})
 
-export type Unsegregated = Static<typeof Unsegregated>
-export const Unsegregated = Type.Literal(
-  'primary:medical:unsegregated:unsegregated'
-)
+export type Category = Static<typeof Category>
+export const Category = Type.Unknown()
 
-export type PrimaryHazardous = Static<typeof PrimaryHazardous>
-export const PrimaryHazardous = Type.Union([
-  Type.Literal('primary:hazardous:electronics'),
-  Type.Literal('primary:hazardous:light_electronics'),
-  Type.Literal('primary:hazardous:battery'),
-  Type.Literal('primary:hazardous:oil')
-])
+export type SecondaryCategory = Static<typeof SecondaryCategory>
+export const SecondaryCategory = Type.Unknown()
 
-export type PrimaryNonHazardous = Static<typeof PrimaryNonHazardous>
-export const PrimaryNonHazardous = Type.Union([
-  Type.Literal('primary:non_hazardous:plastic'),
-  Type.Literal('primary:non_hazardous:non_plastic'),
-  Type.Literal('primary:non_hazardous:unsegregated')
-])
-
-export type ImmunizationInfectious = Static<typeof ImmunizationInfectious>
-export const ImmunizationInfectious = Type.Union([
-  Type.Literal('primary:immunization:infectious:infectious'),
-  Type.Literal('primary:immunization:infectious:sharp'),
-  Type.Literal('primary:immunization:infectious:pathology'),
-  Type.Literal('primary:immunization:infectious:covid_isolation_infectious')
-])
-
-export type ImmunizationNonInfectious = Static<typeof ImmunizationNonInfectious>
-export const ImmunizationNonInfectious = Type.Union([
-  Type.Literal('primary:immunization:non_infectious:chemical'),
-  Type.Literal('primary:immunization:non_infectious:pharmaceuticals'),
-  Type.Literal('primary:immunization:non_infectious:vaccination')
-])
-
-export type PrimaryImmunization = Static<typeof PrimaryImmunization>
-export const PrimaryImmunization = Type.Union([
-  ImmunizationInfectious,
-  ImmunizationNonInfectious
-])
-
-export type PrimaryMedical = Static<typeof PrimaryMedical>
-export const PrimaryMedical = Type.Union([
-  Infectious,
-  NonInfectious,
-  Unsegregated
-])
-
-export type PrimaryDomestic = Static<typeof PrimaryDomestic>
-export const PrimaryDomestic = Type.Union([
-  Type.Literal('primary:domestic:organic'),
-  Type.Literal('primary:domestic:inorganic')
-])
-
-export type SecondaryHazardous = Static<typeof SecondaryHazardous>
-export const SecondaryHazardous = Type.Literal(
-  'secondary:hazardous:incineration_residue'
-)
-
-export type AutoclaveResidue = Static<typeof AutoclaveResidue>
-export const AutoclaveResidue = Type.Union([
-  Type.Literal('secondary:non_hazardous:autoclave_residue:plastic'),
-  Type.Literal('secondary:non_hazardous:autoclave_residue:non_plastic'),
-  Type.Literal('secondary:non_hazardous:autoclave_residue:unsegregated')
-])
-
-export type MicrowaveResidue = Static<typeof MicrowaveResidue>
-export const MicrowaveResidue = Type.Union([
-  Type.Literal('secondary:non_hazardous:microwave_residue:plastic'),
-  Type.Literal('secondary:non_hazardous:microwave_residue:non_plastic'),
-  Type.Literal('secondary:non_hazardous:microwave_residue:unsegregated')
-])
-
-export type SecondaryNonHazardous = Static<typeof SecondaryNonHazardous>
-export const SecondaryNonHazardous = Type.Union([
-  AutoclaveResidue,
-  MicrowaveResidue
-])
-
-export type PrimaryWasteType = Static<typeof PrimaryWasteType>
-export const PrimaryWasteType = Type.Union([
-  PrimaryMedical,
-  PrimaryHazardous,
-  PrimaryNonHazardous,
-  PrimaryImmunization,
-  PrimaryDomestic
-])
-
-export type SecondaryWasteType = Static<typeof SecondaryWasteType>
-export const SecondaryWasteType = Type.Union([
-  SecondaryHazardous,
-  SecondaryNonHazardous
-])
-
-export type PrimaryWasteCreated = Static<typeof PrimaryWasteCreated>
-export const PrimaryWasteCreated = Type.Object({
+export type PrimaryCreatedWaste = Static<typeof PrimaryCreatedWaste>
+export const PrimaryCreatedWaste = Type.Object({
   id: Type.String(),
-  code: PrimaryWasteCode,
-  type: Type.Optional(PrimaryWasteType),
-  status: Type.Literal('created'),
+  macro: Type.Literal('primary'),
+  category: Type.Optional(Category),
+  code: Type.Optional(PrimaryWasteCode),
   weight: Type.Optional(Weight)
 })
 
-export type SecondaryWasteCreated = Static<typeof SecondaryWasteCreated>
-export const SecondaryWasteCreated = Type.Object({
+export type PrimaryReadyForStorage = Static<typeof PrimaryReadyForStorage>
+export const PrimaryReadyForStorage = Type.Object({
   id: Type.String(),
-  code: SecondaryWasteCode,
-  type: Type.Optional(SecondaryWasteType),
-  status: Type.Literal('created'),
-  weight: Type.Optional(Weight),
-  primaryWasteRef: Type.String()
-})
-
-export type PrimaryStoredHazardous = Static<typeof PrimaryStoredHazardous>
-export const PrimaryStoredHazardous = Type.Object({
-  id: Type.String(),
+  macro: Type.Literal('primary'),
+  category: Category,
   code: PrimaryWasteCode,
-  type: PrimaryWasteType,
-  status: Type.Literal('stored'),
-  weight: Weight,
-  storage: HazardousStorage
+  weight: Weight
 })
 
-export type PrimaryStoredNonHazardous = Static<typeof PrimaryStoredNonHazardous>
-export const PrimaryStoredNonHazardous = Type.Object({
+export type PrimaryStoredWaste = Static<typeof PrimaryStoredWaste>
+export const PrimaryStoredWaste = Type.Object({
   id: Type.String(),
+  macro: Type.Literal('primary'),
+  category: Category,
   code: PrimaryWasteCode,
-  type: PrimaryWasteType,
-  status: Type.Literal('stored'),
   weight: Weight,
-  storage: NonHazardousStorage
+  storage: StorageInfo
 })
 
-export type SecondaryHazardousStoredWaste = Static<
-  typeof SecondaryHazardousStoredWaste
->
-export const SecondaryHazardousStoredWaste = Type.Object({
+export type SecondaryCreatedWaste = Static<typeof SecondaryCreatedWaste>
+export const SecondaryCreatedWaste = Type.Object({
   id: Type.String(),
-  code: SecondaryWasteCode,
-  type: Type.Optional(SecondaryWasteType),
-  status: Type.Literal('created'),
-  weight: Type.Optional(Weight),
+  macro: Type.Literal('secondary'),
+  category: SecondaryCategory,
   primaryWasteRef: Type.String(),
-  storage: HazardousStorage
+  code: Type.Optional(PrimaryWasteCode),
+  weight: Type.Optional(Weight)
 })
 
-export type SecondaryNonHazardousStoredWaste = Static<
-  typeof SecondaryNonHazardousStoredWaste
->
-export const SecondaryNonHazardousStoredWaste = Type.Object({
+export type SecondaryReadyForStorage = Static<typeof SecondaryReadyForStorage>
+export const SecondaryReadyForStorage = Type.Object({
   id: Type.String(),
-  code: SecondaryWasteCode,
-  type: Type.Optional(SecondaryWasteType),
-  status: Type.Literal('created'),
-  weight: Type.Optional(Weight),
+  macro: Type.Literal('secondary'),
+  category: SecondaryCategory,
   primaryWasteRef: Type.String(),
-  storage: NonHazardousStorage
+  code: PrimaryWasteCode,
+  weight: Weight
 })
 
-export type SecondaryStoredWaste = Static<typeof SecondaryStoredWaste>
-export const SecondaryStoredWaste = Type.Union([
-  SecondaryHazardousStoredWaste,
-  SecondaryNonHazardousStoredWaste
+export type SecondaryStored = Static<typeof SecondaryStored>
+export const SecondaryStored = Type.Object({
+  id: Type.String(),
+  macro: Type.Literal('secondary'),
+  category: SecondaryCategory,
+  primaryWasteRef: Type.String(),
+  code: PrimaryWasteCode,
+  weight: Weight,
+  storage: StorageInfo
+})
+
+export type StoredWaste = Static<typeof StoredWaste>
+export const StoredWaste = Type.Union([PrimaryStoredWaste, SecondaryStored])
+
+export type ReadyForStorageWaste = Static<typeof ReadyForStorageWaste>
+export const ReadyForStorageWaste = Type.Union([
+  PrimaryReadyForStorage,
+  SecondaryReadyForStorage
 ])
-
-export type Incinerated = Static<typeof Incinerated>
-export const Incinerated = Type.Object({
-  id: Type.String(),
-  code: PrimaryWasteCode,
-  type: PrimaryWasteType,
-  status: Type.Literal('incinerated'),
-  weight: Weight,
-  storage: HazardousStorage,
-  incinerationInfo: IncinerationInfo
-})
-
-export type Autoclaved = Static<typeof Autoclaved>
-export const Autoclaved = Type.Object({
-  id: Type.String(),
-  code: PrimaryWasteCode,
-  type: PrimaryWasteType,
-  status: Type.Literal('autoclaved'),
-  weight: Weight,
-  storage: NonHazardousStorage,
-  autoclaveInfo: AutoclaveInfo
-})
-
-export type Microwaved = Static<typeof Microwaved>
-export const Microwaved = Type.Object({
-  id: Type.String(),
-  code: PrimaryWasteCode,
-  type: PrimaryWasteType,
-  status: Type.Literal('microwaved'),
-  weight: Weight,
-  storage: NonHazardousStorage,
-  microwavedInfo: MicrowaveInfo
-})
 
 export type CreatedWaste = Static<typeof CreatedWaste>
 export const CreatedWaste = Type.Union([
-  PrimaryWasteCreated,
-  SecondaryWasteCreated
+  PrimaryCreatedWaste,
+  SecondaryCreatedWaste
 ])
 
-export type PrimaryStoredWaste = Static<typeof PrimaryStoredWaste>
-export const PrimaryStoredWaste = Type.Union([
-  PrimaryStoredHazardous,
-  PrimaryStoredNonHazardous
-])
-
-export type StoredWaste = Static<typeof StoredWaste>
-export const StoredWaste = Type.Union([
-  PrimaryStoredWaste,
-  SecondaryStoredWaste
-])
+export type TreatedWaste = Static<typeof TreatedWaste>
+export const TreatedWaste = Type.Object({
+  id: Type.String(),
+  macro: Type.Literal('primary'),
+  category: Category,
+  code: PrimaryWasteCode,
+  weight: Weight,
+  storage: StorageInfo,
+  treatmentInfo: Type.Object({
+    treatment: Type.String(),
+    timestamp: Type.Number()
+  })
+})
 
 export type Waste = Static<typeof Waste>
 export const Waste = Type.Union([
   CreatedWaste,
+  ReadyForStorageWaste,
   StoredWaste,
-  Incinerated,
-  Autoclaved,
-  Microwaved
+  TreatedWaste
 ])
 
-export type CreatePrimaryWasteParams = Static<typeof CreatePrimaryWasteParams>
-export const CreatePrimaryWasteParams = Type.Object({
-  code: Type.Optional(PrimaryWasteCode),
-  weight: Type.Optional(Weight),
-  type: Type.Optional(PrimaryWasteType)
-})
+export type CoreWf<
+  C extends TSchema,
+  S extends TSchema,
+  E extends TSchema
+> = Static<ReturnType<typeof CoreWf<C, S, E>>>
+export const CoreWf = <C extends TSchema, S extends TSchema, E extends TSchema>(
+  C: C,
+  S: S,
+  E: E
+) =>
+  Type.Object({
+    cmd: C,
+    state: S,
+    evt: E
+  })
 
-export type CreatePrimaryWasteData = Static<typeof CreatePrimaryWasteData>
-export const CreatePrimaryWasteData = CreatePrimaryWasteParams
+export type CorePy<
+  E extends TSchema,
+  S extends TSchema,
+  C extends TSchema
+> = Static<ReturnType<typeof CorePy<E, S, C>>>
+export const CorePy = <E extends TSchema, S extends TSchema, C extends TSchema>(
+  E: E,
+  S: S,
+  C: C
+) =>
+  Type.Object({
+    cmd: C,
+    state: S,
+    evt: E
+  })
 
-export type CreatePrimaryWasteState = Static<typeof CreatePrimaryWasteState>
-export const CreatePrimaryWasteState = Type.Object({
-  params: CreatePrimaryWasteParams
-})
-
-export type IncinerateWasteData = Static<typeof IncinerateWasteData>
-export const IncinerateWasteData = Type.Object({
-  wasteId: Type.String(),
-  incinerationInfo: IncinerationInfo
-})
-
-export type CreatePrimaryWasteCmd = Static<typeof CreatePrimaryWasteCmd>
-export const CreatePrimaryWasteCmd = CMD(
-  Type.Literal('create-primary-waste'),
-  CreatePrimaryWasteData
+export type CreatePrimaryWasteWf = Static<typeof CreatePrimaryWasteWf>
+export const CreatePrimaryWasteWf = CoreWf(
+  CMD(
+    Type.Literal('create-primary-waste'),
+    Type.Object({
+      code: Type.Optional(PrimaryWasteCode),
+      weight: Type.Optional(Weight),
+      category: Type.Optional(Category)
+    })
+  ),
+  Type.Object({}),
+  EVT(
+    Type.Literal('primary-waste-created'),
+    Type.Object({
+      waste: PrimaryCreatedWaste
+    })
+  )
 )
 
-export type IncinerateWasteCmd = Static<typeof IncinerateWasteCmd>
-export const IncinerateWasteCmd = CMD(
-  Type.Literal('incinerate-waste'),
-  IncinerateWasteData
+export type WeightWasteWf = Static<typeof WeightWasteWf>
+export const WeightWasteWf = CoreWf(
+  CMD(
+    Type.Literal('weight-waste'),
+    Type.Object({
+      wasteId: Type.String(),
+      weight: Weight
+    })
+  ),
+  Type.Object({
+    waste: CreatedWaste
+  }),
+  EVT(
+    Type.Literal('waste-weighted'),
+    Type.Object({
+      waste: CreatedWaste
+    })
+  )
 )
+
+export type CategorizeWasteWf = Static<typeof CategorizeWasteWf>
+export const CategorizeWasteWf = CoreWf(
+  CMD(
+    Type.Literal('categorize-waste'),
+    Type.Object({
+      wasteId: Type.String(),
+      category: Category
+    })
+  ),
+  Type.Object({
+    waste: CreatedWaste
+  }),
+  EVT(
+    Type.Literal('waste-categorized'),
+    Type.Object({
+      waste: CreatedWaste
+    })
+  )
+)
+
+export type StoreWasteWf = Static<typeof StoreWasteWf>
+export const StoreWasteWf = CoreWf(
+  CMD(
+    Type.Literal('store-waste'),
+    Type.Object({
+      wasteId: Type.String(),
+      storageInfo: StorageInfo
+    })
+  ),
+  Type.Object({
+    waste: ReadyForStorageWaste,
+    storageConfig: StorageConfig
+  }),
+  EVT(
+    Type.Literal('waste-stored'),
+    Type.Object({
+      waste: StoredWaste
+    })
+  )
+)
+
+export type TreatWasteWf = Static<typeof TreatWasteWf>
+export const TreatWasteWf = CoreWf(
+  CMD(
+    Type.Literal('treat-waste'),
+    Type.Object({
+      wasteId: Type.String(),
+      treatmentInfo: TreatmentInfo
+    })
+  ),
+  Type.Object({
+    waste: PrimaryStoredWaste,
+    treatmentConfig: TreatmentConfig,
+    hfTreatmentCapacity: Type.Array(Type.String())
+  }),
+  EVT(
+    Type.Literal('waste-treated'),
+    Type.Object({
+      waste: TreatedWaste
+    })
+  )
+)
+
+export type CreateSecondaryWasteWf = Static<typeof CreateSecondaryWasteWf>
+export const CreateSecondaryWasteWf = CoreWf(
+  CMD(
+    Type.Literal('create-secondary-waste'),
+    Type.Object({
+      code: Type.Optional(SecondaryWasteCode),
+      weight: Type.Optional(Weight),
+      category: Type.Optional(SecondaryCategory),
+      primaryWasteRef: Type.String()
+    })
+  ),
+  Type.Object({}),
+  EVT(
+    Type.Literal('secondary-waste-created'),
+    Type.Object({
+      waste: SecondaryCreatedWaste
+    })
+  )
+)
+
+export type WasteWf = Static<typeof WasteWf>
+export const WasteWf = Type.Union([
+  CreatePrimaryWasteWf,
+  WeightWasteWf,
+  CategorizeWasteWf,
+  StoreWasteWf,
+  TreatWasteWf,
+  CreateSecondaryWasteWf
+])
 
 export type WasteCmd = Static<typeof WasteCmd>
-export const WasteCmd = Type.Union([CreatePrimaryWasteCmd, IncinerateWasteCmd])
-
-export type WasteIncineratedData = Static<typeof WasteIncineratedData>
-export const WasteIncineratedData = Type.Object({
-  waste: Incinerated
-})
-
-export type PrimaryWasteCreatedData = Static<typeof PrimaryWasteCreatedData>
-export const PrimaryWasteCreatedData = Type.Object({
-  wasteId: Type.String()
-})
-
-export type WasteIncineratedEvt = Static<typeof WasteIncineratedEvt>
-export const WasteIncineratedEvt = EVT(
-  Type.Literal('waste-incinerated'),
-  WasteIncineratedData
-)
-
-export type PrimaryWasteCreatedEvt = Static<typeof PrimaryWasteCreatedEvt>
-export const PrimaryWasteCreatedEvt = EVT(
-  Type.Literal('primary-waste-created'),
-  PrimaryWasteCreatedData
-)
+export const WasteCmd = Type.Index(WasteWf, Type.Literal('cmd'))
 
 export type WasteEvt = Static<typeof WasteEvt>
-export const WasteEvt = Type.Union([
-  WasteIncineratedEvt,
-  PrimaryWasteCreatedEvt
-])
+export const WasteEvt = Type.Index(WasteWf, Type.Literal('evt'))
 
-export type IncinerateWasteState = Static<typeof IncinerateWasteState>
-export const IncinerateWasteState = Type.Object({
-  isHealthFacilityEnabled: Type.Boolean(),
-  waste: PrimaryStoredHazardous
-})
+export type WasteWfState = Static<typeof WasteWfState>
+export const WasteWfState = Type.Index(WasteWf, Type.Literal('state'))
+
+export type CreateSecondaryWastePy = Static<typeof CreateSecondaryWastePy>
+export const CreateSecondaryWastePy = CorePy(
+  Type.Index(TreatWasteWf, Type.Literal('evt')),
+  Type.Object({
+    category: SecondaryCategory
+  }),
+  Type.Index(CreateSecondaryWasteWf, Type.Literal('cmd'))
+)
+
+export type WastePy = Static<typeof WastePy>
+export const WastePy = CreateSecondaryWastePy
+
+export type WastePyEvt = Static<typeof WastePyEvt>
+export const WastePyEvt = Type.Index(WastePy, Type.Literal('evt'))
+
+export type WastePyState = Static<typeof WastePyState>
+export const WastePyState = Type.Index(WastePy, Type.Literal('state'))
+
+export type WastePyCmd = Static<typeof WastePyCmd>
+export const WastePyCmd = Type.Index(WastePy, Type.Literal('cmd'))
