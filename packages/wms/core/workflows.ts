@@ -74,7 +74,7 @@ export type CreateSecondaryWasteWf = CoreWf<
         category: SecondaryCategory
         primaryWasteRef: string
     }>, 
-    {}, 
+    {category: SecondaryCategory}, 
     EVT<'secondary-waste-created', {
         waste: SecondaryCreatedWaste
     }>
