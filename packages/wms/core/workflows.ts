@@ -92,7 +92,7 @@ export type WasteCmd = WasteWf['cmd']
 export type WasteEvt = WasteWf['evt']
 export type WasteWfState = WasteWf['state']
 
-
+//POLICIES:
 export type CreateSecondaryWastePy = CorePy<
     TreatWasteWf['evt'],
     {
