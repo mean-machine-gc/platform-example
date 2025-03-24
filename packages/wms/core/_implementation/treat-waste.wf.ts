@@ -34,7 +34,12 @@ const _treatmentMustMatchTreatmentConfig: TreatWasteWf['constrain'] = (cmd) => (
     fail('treatment_not_allowed_in_waste_category', {requested: cmd.data.treatmentInfo, allowed: state.treatmentConfig})
 }
 
+const __isEquipmentInGoodOrder: TreatWasteWf['constrain'] = (cmd) => (state) => {
+    return state.isEquipmentInGoodOrder ? succeed(state) : fail('equipment_not_in_good_order')
+}
+
 const _constrains = [
+    __isEquipmentInGoodOrder,
     _hfMustHaveTreatmentCapacity,
     _treatmentMustMatchTreatmentConfig
 ]

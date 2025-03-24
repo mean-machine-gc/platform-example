@@ -62,7 +62,8 @@ export type TreatWasteWf = CoreWf<
     { 
         waste: PrimaryStoredWaste, 
         treatmentConfig: TreatmentConfig,
-        hfTreatmentCapacity: string[] 
+        hfTreatmentCapacity: string[],
+        isEquipmentInGoodOrder: boolean
     },
     EVT<'waste-treated', {
         waste: TreatedWaste
