@@ -12,7 +12,7 @@
     "packages/wms"
   ],
   "dependencies": {
-    "dc-ts": "^0.0.9-unstable",
+    "dc-ts": "github:mean-machine-gc/dc-ts#evolver",
     "uuid": "^11.1.0"
   }
 }
