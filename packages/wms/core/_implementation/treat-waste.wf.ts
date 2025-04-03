@@ -5,6 +5,7 @@ import { TreatedWaste, TreatmentInfo } from "../waste"
 import { newWasteEVT } from "./constructors"
 
 const _parse = safeParseTBox(WasteWfState)
+
 const _invariant: TreatWasteWf['invariant'] = (cmd) => (state) => {
     return cmd.data.wasteId === state.waste.id ?
     succeed(state) :
@@ -52,4 +53,7 @@ const _transition: TreatWasteWf['transition'] = (cmd) => (state) => {
 }
 
 export const treatWasteWf = composeWf(_parse)(_invariant)(_constrains)(_transition)
+
+
+
 

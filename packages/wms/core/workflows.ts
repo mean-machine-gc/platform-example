@@ -175,8 +175,10 @@ export type CreateSecondaryWastePy = CorePy<
     CreateSecondaryWasteWf['cmd']
 >
 
-const evntListener = (e: WasteWf['evt']) => {
-    switch(e)
+const evntListener = (e: WasteWf['']) => {
+    switch(e.type){
+        cas
+    }
 }
 
 export type WastePy = CreateSecondaryWastePy
