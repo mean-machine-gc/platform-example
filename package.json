@@ -10,10 +10,16 @@
   "description": "",
   "workspaces": [
     "packages/wms",
-    "packages/wms-1"
+    "packages/wms-1",
+    "packages/waste-gen"
   ],
   "dependencies": {
-    "dc-ts": "^0.1.0-unstable",
+    "@sinclair/typebox-codegen": "^0.11.0",
+    "dc-ts": "^0.1.7-unstable",
+    "fast-glob": "^3.3.3",
     "uuid": "^11.1.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.14.0"
   }
 }

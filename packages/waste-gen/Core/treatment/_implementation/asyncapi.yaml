@@ -1,0 +1,506 @@
+asyncapi: 2.6.0
+info:
+  title: treatment Domain API
+  version: 1.0.0
+servers:
+  production:
+    url: mqtt://broker.example.com
+    protocol: mqtt
+    description: Production event broker
+tags:
+  - name: treatment
+    description: Messages related to treatment workflows
+channels:
+  create-treatment:
+    publish:
+      operationId: sendCreateTreatment
+      description: Handles create-treatment command
+      message:
+        $ref: "#/components/messages/Cmd_create-treatment"
+  load-treatment:
+    publish:
+      operationId: sendLoadTreatment
+      description: Handles load-treatment command
+      message:
+        $ref: "#/components/messages/Cmd_load-treatment"
+  start-treatment:
+    publish:
+      operationId: sendStartTreatment
+      description: Handles start-treatment command
+      message:
+        $ref: "#/components/messages/Cmd_start-treatment"
+  complete-treatment:
+    publish:
+      operationId: sendCompleteTreatment
+      description: Handles complete-treatment command
+      message:
+        $ref: "#/components/messages/Cmd_complete-treatment"
+  treatment-created:
+    subscribe:
+      operationId: receiveTreatmentCreated
+      description: Handles treatment-created event
+      message:
+        $ref: "#/components/messages/Evt_treatment-created"
+  treatment-started:
+    subscribe:
+      operationId: receiveTreatmentStarted
+      description: Handles treatment-started event
+      message:
+        $ref: "#/components/messages/Evt_treatment-started"
+components:
+  messages:
+    Cmd_create-treatment:
+      name: create-treatment
+      title: Cmd_create-treatment
+      payload:
+        oneOf:
+          - $ref: "#/components/schemas/Cmd_create-treatment"
+    Cmd_load-treatment:
+      name: load-treatment
+      title: Cmd_load-treatment
+      payload:
+        oneOf:
+          - $ref: "#/components/schemas/Cmd_load-treatment"
+    Cmd_start-treatment:
+      name: start-treatment
+      title: Cmd_start-treatment
+      payload:
+        oneOf:
+          - $ref: "#/components/schemas/Cmd_start-treatment"
+    Cmd_complete-treatment:
+      name: complete-treatment
+      title: Cmd_complete-treatment
+      payload:
+        oneOf:
+          - $ref: "#/components/schemas/Cmd_complete-treatment"
+    Evt_treatment-created:
+      name: treatment-created
+      title: Evt_treatment-created
+      payload:
+        oneOf:
+          - $ref: "#/components/schemas/Evt_treatment-created"
+    Evt_treatment-started:
+      name: treatment-started
+      title: Evt_treatment-started
+      payload:
+        oneOf:
+          - $ref: "#/components/schemas/Evt_treatment-started"
+  schemas:
+    Cmd_create-treatment:
+      type: object
+      properties:
+        id:
+          type: string
+        msgType:
+          const: cmd
+          type: string
+        type:
+          const: create-treatment
+          type: string
+        timestamp:
+          type: number
+        correlationid:
+          type: string
+        causationid:
+          anyOf:
+            - type: string
+            - type: undefined
+        data:
+          type: object
+          properties:
+            userId:
+              type: string
+            healthFacility:
+              type: object
+              properties:
+                healthFacilityId:
+                  type: string
+                allowedTreatments:
+                  type: array
+                  items:
+                    type: string
+              required:
+                - healthFacilityId
+                - allowedTreatments
+            loadingEquipment:
+              type: object
+              properties:
+                equipmentId:
+                  type: string
+                healthFacilityId:
+                  type: string
+                equipmentType:
+                  type: string
+                inGoodOrder:
+                  type: boolean
+                loadingCapacity:
+                  type: object
+                  properties:
+                    minWeightCapacity: &a1
+                      type: object
+                      properties:
+                        uom:
+                          anyOf:
+                            - const: kg
+                              type: string
+                            - const: g
+                              type: string
+                        weight:
+                          type: number
+                      required:
+                        - uom
+                        - weight
+                    maxWeightCapacity: *a1
+                    minVolumeCapacity: &a2
+                      type: object
+                      properties:
+                        uom:
+                          const: liters
+                          type: string
+                        volume:
+                          type: number
+                      required:
+                        - uom
+                        - volume
+                    maxVolumeCapacity: *a2
+                  required:
+                    - minWeightCapacity
+                    - maxWeightCapacity
+                    - minVolumeCapacity
+                    - maxVolumeCapacity
+              required:
+                - equipmentId
+                - healthFacilityId
+                - equipmentType
+                - inGoodOrder
+                - loadingCapacity
+            otherEquipment:
+              type: object
+              properties:
+                equipmentId:
+                  type: string
+                healthFacilityId:
+                  type: string
+                equipmentType:
+                  type: string
+                inGoodOrder:
+                  type: boolean
+              required:
+                - equipmentId
+                - healthFacilityId
+                - equipmentType
+                - inGoodOrder
+            treatmentTypeId:
+              type: string
+          required:
+            - userId
+            - healthFacility
+            - loadingEquipment
+            - otherEquipment
+            - treatmentTypeId
+      required:
+        - id
+        - msgType
+        - type
+        - timestamp
+        - correlationid
+        - causationid
+        - data
+    Cmd_load-treatment:
+      type: object
+      properties:
+        id:
+          type: string
+        msgType:
+          const: cmd
+          type: string
+        type:
+          const: load-treatment
+          type: string
+        timestamp:
+          type: number
+        correlationid:
+          type: string
+        causationid:
+          anyOf:
+            - type: string
+            - type: undefined
+        data:
+          type: object
+          properties:
+            userId:
+              type: string
+            healthFacilityId:
+              type: string
+            treatmentId:
+              type: string
+            waste:
+              type: array
+              items:
+                type: object
+                properties:
+                  wasteBagId:
+                    type: string
+                  statusBeforeTreatment:
+                    const: stored
+                    type: string
+                  weight: *a1
+                  volume: *a2
+                  wasteCategoryId:
+                    type: string
+                required:
+                  - wasteBagId
+                  - statusBeforeTreatment
+                  - weight
+                  - volume
+                  - wasteCategoryId
+          required:
+            - userId
+            - healthFacilityId
+            - treatmentId
+            - waste
+      required:
+        - id
+        - msgType
+        - type
+        - timestamp
+        - correlationid
+        - causationid
+        - data
+    Cmd_start-treatment:
+      type: object
+      properties:
+        id:
+          type: string
+        msgType:
+          const: cmd
+          type: string
+        type:
+          const: start-treatment
+          type: string
+        timestamp:
+          type: number
+        correlationid:
+          type: string
+        causationid:
+          anyOf:
+            - type: string
+            - type: undefined
+        data:
+          type: object
+          properties:
+            userId:
+              type: string
+            healthFacilityId:
+              type: string
+            treatmentId:
+              type: string
+          required:
+            - userId
+            - healthFacilityId
+            - treatmentId
+      required:
+        - id
+        - msgType
+        - type
+        - timestamp
+        - correlationid
+        - causationid
+        - data
+    Cmd_complete-treatment:
+      type: object
+      properties:
+        id:
+          type: string
+        msgType:
+          const: cmd
+          type: string
+        type:
+          const: complete-treatment
+          type: string
+        timestamp:
+          type: number
+        correlationid:
+          type: string
+        causationid:
+          anyOf:
+            - type: string
+            - type: undefined
+        data:
+          type: object
+          properties:
+            userId:
+              type: string
+            healthFacilityId:
+              type: string
+            treatmentId:
+              type: string
+          required:
+            - userId
+            - healthFacilityId
+            - treatmentId
+      required:
+        - id
+        - msgType
+        - type
+        - timestamp
+        - correlationid
+        - causationid
+        - data
+    Evt_treatment-created:
+      type: object
+      properties:
+        id:
+          type: string
+        msgType:
+          const: evt
+          type: string
+        type:
+          const: treatment-created
+          type: string
+        timestamp:
+          type: number
+        correlationid:
+          type: string
+        causationid:
+          anyOf:
+            - type: string
+            - type: undefined
+        data:
+          type: object
+          properties:
+            createdBy:
+              type: string
+            createdAt:
+              type: string
+            treatmentId:
+              type: string
+            treatmentType:
+              type: object
+              properties:
+                treatmentTypeId:
+                  type: string
+                treatmentName:
+                  type: string
+                duration:
+                  type: number
+                acceptedWasteCategories:
+                  type: array
+                  items:
+                    type: string
+                residueWasteCategories:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      inputCategories:
+                        type: array
+                        items:
+                          type: string
+                      outputCategories:
+                        type: array
+                        items:
+                          type: string
+                    required:
+                      - inputCategories
+                      - outputCategories
+                loadingEquipmentType:
+                  type: array
+                  items:
+                    type: string
+                otherEquipmentType:
+                  type: array
+                  items:
+                    type: string
+              required:
+                - treatmentTypeId
+                - treatmentName
+                - duration
+                - acceptedWasteCategories
+                - residueWasteCategories
+                - loadingEquipmentType
+                - otherEquipmentType
+            healthFacilityId:
+              type: string
+            loadingEquipment:
+              type: object
+              properties:
+                equipmentId:
+                  type: string
+                equipmentType:
+                  type: string
+                loadingCapacity:
+                  type: string
+              required:
+                - equipmentId
+                - equipmentType
+                - loadingCapacity
+            otherEquipment:
+              type: object
+              properties:
+                equipmentId:
+                  type: string
+                equipmentType:
+                  type: string
+              required:
+                - equipmentId
+                - equipmentType
+          required:
+            - createdBy
+            - createdAt
+            - treatmentId
+            - treatmentType
+            - healthFacilityId
+            - loadingEquipment
+            - otherEquipment
+      required:
+        - id
+        - msgType
+        - type
+        - timestamp
+        - correlationid
+        - causationid
+        - data
+    Evt_treatment-started:
+      type: object
+      properties:
+        id:
+          type: string
+        msgType:
+          const: evt
+          type: string
+        type:
+          const: treatment-started
+          type: string
+        timestamp:
+          type: number
+        correlationid:
+          type: string
+        causationid:
+          anyOf:
+            - type: string
+            - type: undefined
+        data:
+          type: object
+          properties:
+            treatmentId:
+              type: string
+            completedBy:
+              type: string
+            completedAt:
+              type: string
+            healthFacilityId:
+              type: string
+          required:
+            - treatmentId
+            - completedBy
+            - completedAt
+            - healthFacilityId
+      required:
+        - id
+        - msgType
+        - type
+        - timestamp
+        - correlationid
+        - causationid
+        - data

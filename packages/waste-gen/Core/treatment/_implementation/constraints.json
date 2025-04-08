@@ -1,0 +1,32 @@
+[
+  {
+    "cmd": "create-treatment",
+    "fn": "_hfMustBeEnabled",
+    "condition": "allowedTreatments.indexOf(treatmentType) === -1",
+    "failureMsg": "health_facility_not_allowed"
+  },
+  {
+    "cmd": "create-treatment",
+    "fn": "_equipmentMustBeInGoodOrder",
+    "condition": "!accumulator.inGoodOrder",
+    "failureMsg": "equipment_out_of_order"
+  },
+  {
+    "cmd": "load-treatment",
+    "fn": "_atLeastOneWasteBagLoaded",
+    "condition": "!wasteBags.length",
+    "failureMsg": "no_waste_bags_provided"
+  },
+  {
+    "cmd": "load-treatment",
+    "fn": "_atLeastOneWasteBagLoaded",
+    "condition": "!allowedCategories || !allowedCategories.length",
+    "failureMsg": "no_waste_categories_allowed"
+  },
+  {
+    "cmd": "load-treatment",
+    "fn": "_atLeastOneWasteBagLoaded",
+    "condition": "!allowedBags.length",
+    "failureMsg": "waste_category_not_allowed"
+  }
+]

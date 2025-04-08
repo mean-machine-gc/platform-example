@@ -1,4 +1,5 @@
-import {CoreWf, EVT, CMD, CoreWfFails} from 'dc-ts'
+import {CoreWf, EVT, CMD, CoreWfFails, Constrain, Result} from 'dc-ts'
+
 
 //waste bag
 //create, weight, categorize, store
@@ -44,20 +45,24 @@ export type StoredWaste = {
     weight: Weight
     category: Category
     storageLocation: StorageLocation
-    storageExpiration: number
 }
 
-export type ReadyForStorageEvt = EVT<'waste-ready-for-storage', {
-    healthFacilityId: string
+export type TreatedWaste = {
+    status: 'treated'
     wasteId: string
     weight: Weight
     category: Category
-}>
+    storageLocation: StorageLocation
+    treatmentId: string
+}
 
-export type Waste = CreatedWaste | ReadyToStore | StoredWaste
+export type Waste = CreatedWaste | 
+    ReadyToStore | 
+    StoredWaste |
+    TreatedWaste
 
-export type AggregateState = {} |
-{ waste: CreatedWaste }
+export type WasteAggregate = 
+{ waste: Waste | null}
 
 export type CreateWasteWf = CoreWf<
     CMD<'create-waste', {
@@ -66,7 +71,7 @@ export type CreateWasteWf = CoreWf<
         weight?: Weight
         category?: Category
     }>,
-    {},
+    WasteAggregate,
     EVT<'waste-created', {
         createdBy: string
         healthFacilityId: string
@@ -74,9 +79,8 @@ export type CreateWasteWf = CoreWf<
         wasteId: string
         weight?: Weight
         category?: Category
-    }> | 
-    ReadyForStorageEvt,
-    { waste: CreatedWaste  | ReadyToStore}
+    }>,
+    CoreWfFails
 >
 
 export type WeightWasteWf = CoreWf<
@@ -86,19 +90,15 @@ export type WeightWasteWf = CoreWf<
         helathFacilityId: string
         weight: Weight
     }>,
-    AggregateState & {waste: CreatedWaste},
+    WasteAggregate,
     EVT<'waste-weighted', {
         weightedBy: string
         healthFacilityId: string
         weightedAt: number
         wasteId: string
         weight: Weight
-    }> | 
-    EVT<'waste-ready-for-storage', {
-        healthFacilityId: string
-        wasteId: string
     }>,
-    AggregateState & { waste: CreatedWaste | ReadyToStore }
+    never
 >
 
 export type CategorizeWasteWf = CoreWf<
@@ -108,19 +108,26 @@ export type CategorizeWasteWf = CoreWf<
         helathFacilityId: string
         category: Category
     }>,
-    AggregateState & { waste: CreatedWaste },
+    WasteAggregate,
     EVT<'waste-categorized', {
         categorizedBy: string
         healthFacilityId: string
         categorizedAt: number
         wasteId: string
         category: Category
-    }> | 
-    EVT<'waste-ready-for-storage', {
-        healthFacilityId: string
+    }>,
+    never
+>
+
+export type SetAsReadyToStoreWf = CoreWf<
+    CMD<'set-ready-to-store', {
         wasteId: string
     }>,
-    AggregateState & { waste: CreatedWaste | ReadyToStore }
+    WasteAggregate,
+    EVT<'waste-ready-for-storage', {
+        wasteId: string
+    }>,
+    never
 >
 
 export type StoreWasteWf = CoreWf<
@@ -130,7 +137,7 @@ export type StoreWasteWf = CoreWf<
         helathFacilityId: string
         storageLocation: StorageLocation
     }>,
-    AggregateState & { waste: ReadyToStore },
+    WasteAggregate,
     EVT<'waste-stored', {
         storedBy: string
         healthFacilityId: string
@@ -138,10 +145,58 @@ export type StoreWasteWf = CoreWf<
         wasteId: string
         storageLocation: StorageLocation
     }>,
-    AggregateState & { waste: StoredWaste },
     CoreWfFails |
     'waste_is_not_weighted' |
     'waste_is_not_categorized' 
 >
 
-export type WasteWf = CreateWasteWf | WeightWasteWf | CategorizeWasteWf | StoreWasteWf
+export type TreatWasteWf = CoreWf<
+    CMD<'treat-waste', {
+        wasteId: string
+        treatmentId: string
+    }>,
+    WasteAggregate,
+    EVT<'waste-treated', {
+        wasteId: string
+        treatmentId: string
+    }>,
+    CoreWfFails |
+    'waste_cannont_be_treated_internally' |
+    'health_facility_is_not_equipped' 
+>
+
+export type WasteWf = CreateWasteWf | 
+    WeightWasteWf | 
+    CategorizeWasteWf | 
+    StoreWasteWf |
+    SetAsReadyToStoreWf |
+    TreatWasteWf
+
+export type WasteWfCmd = WasteWf['cmd']
+export type WasteWfEvt = WasteWf['evt']
+
+type Reactor<E, S, C, F extends string> = {
+    evt: E
+    state: S 
+    fails: F
+    constrain: Constrain<E, S, F>
+    policy: Policy<E, S, C, F>
+}
+
+export type Policy<E, S, C, F extends string> = (e: E) => (s: S) => Result<C[], F>
+
+type CorePolicyFails = CoreWfFails
+
+export type ObservedEvts = WasteWf['evt']
+
+export type MarkAsReadyToStoreReactor = Reactor<
+    CreateWasteWf['evt'] |
+    WeightWasteWf['evt'] |
+    CategorizeWasteWf['evt'],
+    WasteWf['aggregate'],
+    SetAsReadyToStoreWf['cmd'],
+    CorePolicyFails | 
+    'not_ready_to_store'
+>
+
+export type WasteReactor = MarkAsReadyToStoreReactor
